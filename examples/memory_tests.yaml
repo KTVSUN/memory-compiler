@@ -1,0 +1,26 @@
+# memory_tests.yaml — Acme Rebrand (example)
+#
+# Positive assertions (must_reference): a fact that MUST still be findable in a given file.
+# Negative assertions (must_not_return): a tombstoned value that must NEVER reappear verbatim.
+#
+# NOTE: the parser is intentionally dependency-free and treats "#" as a comment marker, same as
+# the rest of this file — don't put "#" inside an expect_contains / expect_not_contains value
+# (write hex colors as "1E3A5F" rather than "#1E3A5F", for example).
+#
+# Run with: python3 memory_check.py --test  (also runs automatically on --close)
+
+tests:
+  - id: "must-know-golive"
+    type: "must_reference"
+    file: "CONTEXT.md"
+    expect_contains: "2026-09-15"
+
+  - id: "must-not-reassert-old-golive"
+    type: "must_not_return"
+    file: "CONTEXT.md"
+    expect_not_contains: "2026-09-01"
+
+  - id: "must-not-reassert-old-palette"
+    type: "must_not_return"
+    file: "CONTEXT.md"
+    expect_not_contains: "1E3A5F"
