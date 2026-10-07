@@ -1,106 +1,46 @@
-# memory-compiler
+# A working memory for an AI assistant that runs a small business
 
-A small, dependency-free system for giving an AI coding/writing agent (Claude, ChatGPT, whatever)
-**persistent, validated memory** of a long-running project — across sessions, across restarts,
-and optionally across machines that sync through a shared folder.
+This repository documents, and partly ships, the system one person uses to run several small businesses with Claude as the day-to-day assistant: project folders on a synced drive, a Windows PC that works overnight, and an hourly email importer. It has been in daily use since mid 2026 and is rebuilt from scratch when a PC is replaced.
 
-The core idea: treat memory like source code, not like a chat log. A handful of canonical
-Markdown files hold current truth. A script — the **Memory Compiler** — validates them, catches
-contradictions, and refuses to let a session close cleanly while something is broken.
+It is written for people who have the same problem: an assistant that is useful inside one conversation and forgets everything between two of them.
 
-## The problem this solves
+## The problem
 
-If you've used an AI agent on the same project across many sessions, you've probably hit this:
-the agent confidently reasserts a fact you corrected two weeks ago, because it pulled it from an
-old document instead of your last correction. Or two sessions on different machines both edit the
-same "current state" file and one silently clobbers the other. Or a session crashes mid-task and
-the next one has no idea what it was in the middle of.
+A conversation with an AI assistant is a good place to work and a bad place to store anything. Facts drift, corrections are lost, the assistant reasserts a figure you fixed two weeks ago, and nothing that happened in a chat is visible to the next one. The usual answer is more memory: bigger context, summaries of past chats, a vector store. We went the other way.
 
-Most fixes for this reach for more memory — bigger context windows, a vector database of past
-chats, RAG over transcripts. This does the opposite: it assumes most of what happens in a session
-should be **thrown away**, and the small amount that should persist should be **written
-deliberately, validated mechanically, and provably correctable** when it turns out wrong.
+## The idea, in five sentences
 
-## What's in here
+1. **Files own the truth; the chat owns nothing.** Documents live in a library of folders, decisions in a decision log, tasks in a register, defects in a defects file. If a fact is not in a file, it does not exist.
+2. **Each fact has exactly one owner.** A client's contract terms live in one workbook, a lot price in another, an email's state in the mail ledger. Everything else points at the owner instead of copying the value.
+3. **What a session reads at start is small and fixed; archives grow without limit and are only searched.** A session opens on a two-sentence state and a short menu, never on a report.
+4. **Humans decide, machines propose.** No job ever creates a task, files a document or changes a rule on its own. It writes a proposal row and a person ticks it.
+5. **If the assistant reads it and it is not a project document, it lives in one git repository**: skills, scheduled prompts, scripts, the operating manual and the one-click installer. A machine is rebuilt by cloning that repository and double-clicking one file.
 
-- **[`ARCHITECTURE.md`](ARCHITECTURE.md)** — the full design: four memory layers, the canonical
-  file spec, the session open/close lifecycle, concurrency handling, multi-machine sync, and the
-  design decisions worth knowing about before you adapt this. Start here if you want to understand
-  *why*, not just copy files.
-- **[`memory_check.py`](memory_check.py)** — the compiler. Validates the canonical files,
-  regenerates disposable summary views, runs retrieval tests, and manages a session ledger with a
-  single-writer lock and crash recovery. Zero third-party dependencies.
-- **[`templates/HANDOFF_TEMPLATE.md`](templates/HANDOFF_TEMPLATE.md)** — the end-of-session
-  writeup template, with a hard size cap and a "supersedes diff" discipline that catches items
-  quietly dropped instead of resolved.
-- **[`templates/RECOVERY_TEMPLATE.md`](templates/RECOVERY_TEMPLATE.md)** — what gets generated
-  automatically when a session crashes without closing properly.
-- **[`examples/`](examples/)** — a small worked example (a freelancer's client rebrand project)
-  showing what populated `CONTEXT.md`, `OPEN_ITEMS.md`, `DECISIONS.md`, `TOMBSTONES.md`, and
-  `memory_tests.yaml` actually look like.
+## What runs where
 
-## The four files that matter
-
-| File | Holds | Rule |
+| Layer | Holds | Examples |
 |---|---|---|
-| `CONTEXT.md` | Who/what things mean, durable facts | Every mutable fact needs a date + evidence pointer |
-| `OPEN_ITEMS.md` | The live work-state ledger | Permanent IDs; every item must resolve to OPEN / BLOCKED / DONE / DROPPED |
-| `DECISIONS.md` | Append-only decision log | Every decision carries its *why*, not just its *what* |
-| `TOMBSTONES.md` | Rejected/superseded values | Add-only; prevents an old document's stale fact from getting reasserted |
+| Canonical truth | current facts, editable, one owner each | `DECISIONS.md` (why, not only what), `CONTEXT.md` (glossary), `LOG.md` (dated facts), a `_LEDGER.md` per library zone, the task register |
+| History | what happened, when | one handoff per topic per session (deltas only), a daily record written by a script, a chat archive |
+| Evidence | unaltered sources | the document library, email threads saved verbatim with their attachments |
+| Generated | disposable, rebuilt nightly | the task board, a search index, the "needs you" mail list, a run-health strip |
+| Tooling | everything the assistant reads to do its job | the `ops` git repository: skills, prompts, scripts, manual, installer |
 
-Everything else — handoffs, session ledgers, generated indexes — exists to keep these four honest.
+## A day
 
-## Quick start
+- **07:00** the PC wakes itself; the board recomputes, mirrors tasks to a phone app both ways, and renders. **07:05** a script appends yesterday's section to the daily record (sessions closed, documents filed, decisions taken, tasks done, jobs run), without any model.
+- **Every hour** the email importer reads new mail, asks a model two questions per thread (which topic folder, and what the thread asks of the owner), saves the thread and attachments into that folder's `Input\Emails\`, appends a knowledge note to the project log when there is one, and rewrites one cross-project **needs-you** list. The only change it makes in the mailbox is one label.
+- **During the day** the owner works in sessions opened on a project folder. `/start` requests the folders in one window and prints a menu: kickoff ready, open work, waiting on someone, plan, blocking items, mail on this topic, something new. Decisions are written to the log the turn they are taken. `/handoff` closes: every open item of the previous handoff reappears as open, done with proof, or dropped with a reason; every "waiting for a reply" line is checked against the mail ledger before it is written.
+- **18:00 to 22:00** jobs regenerate manifests, purge the quarantine folder, propose filing for dropped-in documents, re-point ledger lines whose file was moved by hand (by content hash), rebuild the index, and put the PC to sleep. A header strip on the board shows one circle per job, filled only from evidence the job leaves behind, never from a session's own report.
 
-```bash
-# 1. Drop memory_check.py in your project root (or point --topic-dir / $MEMORY_TOPIC_DIR at it)
-cp memory_check.py /path/to/your/project/
-cd /path/to/your/project/
+## What is in this repository
 
-# 2. Seed the four canonical files (copy the skeletons from examples/, then empty them out)
-cp path/to/examples/*.md .
-# ...edit them down to your actual project's facts...
+- **[`ARCHITECTURE.md`](ARCHITECTURE.md)**: the full description. Layers, the library and filing rules, the session bookends, the task layer, the email layer, the unattended jobs, the repository and reinstall, and what we abandoned since the first version and why.
+- **[`templates/`](templates/)**: the handoff template (8 KB cap, supersedes diff), the decision log header, the project log format, the needs-you list format.
+- **[`legacy/`](legacy/)**: the first version of this repository (August 2026): a close-time validator script, `memory_check.py`, with its templates and a worked example. It still works on its own. We stopped using it; `ARCHITECTURE.md` section 10 says why.
 
-# 3. At the start of a session
-python3 memory_check.py --open my-session-1 --machine laptop
+No business data, no personal data, no live code with credentials. Scripts named here (the importer, the daily record, the mail-state reader) are described, not shipped, in this version.
 
-# 4. Work normally — edit CONTEXT.md / OPEN_ITEMS.md / DECISIONS.md / TOMBSTONES.md as you go
+## Status and license
 
-# 5. At the end of a session
-python3 memory_check.py --close my-session-1
-```
-
-`--close` runs the full pipeline (validate → concurrency check → rebuild generated views → run
-`memory_tests.yaml`) and only seals the session if everything passes. If it doesn't, it tells you
-exactly which file/row/test is the problem — nothing seals silently broken.
-
-If a session crashes without closing:
-
-```bash
-python3 memory_check.py --recovery-scan          # finds stale OPEN sessions, writes a candidate
-# ...a human or another agent fills in the candidate facts from the transcript...
-python3 memory_check.py --resolve-recovery my-session-1 --note "reconciled into OPEN_ITEMS.md"
-```
-
-## Wiring it into your agent
-
-This repo is deliberately just the compiler and the file conventions — it doesn't assume any
-particular agent, IDE, or chat tool. To actually use it day to day, you want your agent's
-"session start" behavior to run `--open` (and `--recovery-scan`) and its "session end" behavior
-(a slash command, a magic word, whatever you use) to run `--close`. `ARCHITECTURE.md` §4 describes
-the lifecycle those two hooks need to implement; the glue code is yours to write for whatever
-agent harness you're on.
-
-## Status
-
-This is a reference implementation, not a maintained product — pulled out of a real project and
-genericized for sharing. It covers validation, the session ledger, single-writer locking, crash
-recovery, generated views, and retrieval tests. It deliberately does **not** include a fact-ID
-system for individual numeric claims, staged (`_pending/`) writes, or a git audit mirror — see
-`ARCHITECTURE.md` §5 for why each is left as an opt-in extension rather than baked in.
-
-Issues and forks welcome if you adapt this for your own setup.
-
-## License
-
-MIT — see [`LICENSE`](LICENSE).
+Reference documentation of a live, single-operator system, genericised for sharing. Not a product. MIT, see [`LICENSE`](LICENSE).

@@ -1,104 +1,56 @@
-# HANDOFF TEMPLATE
+# HANDOFF TEMPLATE, v2 (October 2026)
 
-> **Hard cap: 8 KB (~150 lines).** A handoff is written once and read at the start of *every*
-> later session on this project — it is the only artifact whose cost compounds.
+> **Hard cap: 8 KB.** Read at the start of every later session on this topic.
 > **The test for every line: would the next session act differently without it?** If not, cut it.
 
-## WHAT GOES IN — six blocks, in this order
+## WHAT GOES IN, five blocks, in this order
 
-**1. Header (5 lines max)** — session/chat reference · date · project folder · what it
-supersedes · sibling handoffs from the same session · whether `CONTEXT.md` was updated.
+**0. Kickoff prompt for next session.** Fenced block at the top (`Model:` and why, `Session type:` only when the next session builds or changes a tool, the files to read in order, the actions each with a `Must fit with:` line, stop conditions, out of scope). Written ONLY when the kickoff gate passes: the owner asked for a next session, or critical work was identified, not done, and cannot be finished in the current chat, or a design spec is final. Validation work and waiting on other people are never grounds for a kickoff. Otherwise this block reads `No new session needed.`
 
-**2. Current state (one short paragraph)** — where the matter stands *now*. Not how it got there.
+**1. Header (4 lines max).** Chat title, date, topic folder (full path), what it supersedes and sibling handoffs from the same session.
 
-**3. The authoritative current set** — which files are live, by name. If two versions exist, say
-which one wins and retire the other.
+**2. Current state (two sentences at most).** What is true now and what comes next. Never what this session did; the owner was there. Copied verbatim by the daily record.
 
-**4. Decisions + WHY** — the only block that may run long. Every decision carries its reasoning: a
-decision without its *why* gets relitigated at full cost, three sessions later.
-**Evidence pointers:** every material claim carries a one-line source — "per the July invoice",
-"per Alex's email, 14 July", "verified empirically". A claim without a source cannot be corrected
-later without guesswork. Applies to `CONTEXT.md` entries too.
+**3. The authoritative current set.** The live files, by full path. If two versions exist, say which wins and retire the other to quarantine.
 
-**5. Open queue + blockers** — what is owed, to whom, and what is waiting on someone else.
+**4. Decisions + why.** One line per decision with its D-number from `DECISIONS.md` and a one-line why. The full rationale lives in the decision log, not here. Every material claim names its source ("per the July statement", "verified on disk <date>").
 
-**6. Traps** — only ones that would cost the next session real time; a trap earns its place by
-having already burned someone once.
-
-## THE SUPERSEDES DIFF — run it BEFORE writing
-
-Open the handoff this one supersedes and walk its OPEN QUEUE and every instruction it carries.
-Each one must reappear here in exactly one of three states:
-
-- **OPEN** — carried forward, still owed;
-- **DONE — with evidence** — name the artifact or file that proves it, not the intention;
-- **DROPPED — with why** — someone said so, or events made it moot.
-
-An item in none of the three states is the failure this rule exists for: a decision quietly
-downgraded mid-session, described in language that reads like resolution, survives two sessions
-undetected. The diff is the check.
-
-## TOMBSTONES — when a value is REJECTED, not just superseded
-
-If this session rejected a value — a figure proven wrong, a name retired, an approach someone said
-no to, an assumption verified false — write a one-line tombstone in `TOMBSTONES.md`: value · why
-rejected · date · replacement. The supersedes diff protects open *items*; tombstones protect
-*values* — without one, a later session can re-derive the rejected value from an old document and
-reintroduce it in a fresh deliverable. Before asserting any fact recovered from an old file, check
-the tombstone registry first. Tombstones are permanent: never delete, only add.
+**5. Open items, as deltas** against the previous handoff: CLOSED SINCE (file that proves it), NEW SINCE (with its next concrete step), DROPPED (why). An untouched item is not retyped; write `unchanged: n items, see <previous handoff>`. This block holds only this topic's in-flight work. A business action the owner must take is proposed as a task and created only on the owner's yes; a tool defect goes to `DEFECTS.md`; library hygiene goes nowhere by hand (the nightly checker regenerates it). An item carried unchanged twice is proposed as drop or task at the close, never carried a third time.
 
 ## WHAT STAYS OUT
-
-Session narrative (who noticed what, in what order) · anything already in `CONTEXT.md` (meanings
-live there) · figures that live in a spreadsheet or database (point at the file) · full quotations
-where a one-line summary plus the file reference does the same job · superseded versions of your
-own reasoning.
-
-## THE THREE LAYERS — put each fact in exactly ONE of them
-
-| Layer | Holds |
-|---|---|
-| `CONTEXT.md` (project root) | what things **MEAN** — parties, documents, name traps |
-| `OPEN_ITEMS.md` (project root) | **OPEN LOOPS** — the live work-state ledger, checked at every close |
-| handoffs | what is **HAPPENING** — state, decisions, queue, blockers |
-
-**If a sentence would be false in a month, it does not belong in `CONTEXT.md`.**
+Traps (they go to the assistant's project memory). Session narrative. Anything already in `CONTEXT.md`. Figures that live in a workbook (point at the file). Quotations where a path does the job. Maintenance findings (`DEFECTS.md`). The full rationale of a decision (`DECISIONS.md`). A files-read list. Credentials, always.
 
 ## THE CLOSE, in order
+1. Decisions and defects were written in the turn they happened; if one was missed, write it now.
+2. Run the mail check: every open item that names a reply, a document someone must send, a payment or a signature is checked against the mail ledger before it is written.
+3. Run the supersedes diff (block 5).
+4. Write the handoff under the cap: `HANDOFF - <topic> YYYYMMDD<suffix>.md` in `<topic>\Output\md\`; latest date, then suffix, wins.
+5. Run the plan summary; propose at most one phase-status change.
+6. Propose the chat title. One numbered list. Ask nothing after it.
 
-1. File outputs per your project's convention.
-2. Run `memory_check.py --close <session-id>` and read its findings — resolve any `[ask]` before
-   the close can seal.
-3. Add/close entries in `OPEN_ITEMS.md` for anything this session opened or resolved.
-4. Update `CONTEXT.md` — most sessions add nothing, and that is the correct outcome.
-5. Did this session REJECT any value (wrong figure, retired name, refused approach, falsified
-   assumption)? If yes, write its tombstone in `TOMBSTONES.md`.
-6. Run the supersedes diff, then write the handoff, under the cap.
-
-## SKELETON — copy this
+## SKELETON, copy this
 
 ```markdown
-# HANDOFF — <project>
+# HANDOFF: <topic>
 
-- **Session:** "<name>" · **Date:** <YYYY-MM-DD> · **Project folder:** `<path>`
+## Kickoff prompt for next session
+No new session needed.
+
+- **Chat:** "<title>" · **Date:** <YYYY-MM-DD> · **Topic folder:** `<full path>`
 - **Supersedes:** <file, or nothing> · **Siblings this session:** <files, or none>
-- **CONTEXT.md:** updated / nothing owed
 
 ## CURRENT STATE
-<one paragraph>
+<two sentences at most: what is true now, what comes next>
 
 ## AUTHORITATIVE CURRENT SET
-- `<file>` — <what it is, what version, what it governs>
+- `<full path>`: <what it is, what it governs>
 
 ## DECISIONS + WHY
-- **<decision>** — <why>
+- **D-NNN <short name>**: <one-line why>
 
-## SUPERSEDES DIFF — against <previous handoff>
-- <each prior open item: OPEN / DONE — evidence / DROPPED — why>
-
-## OPEN QUEUE / BLOCKERS
-- <what is owed, to whom, waiting on what>
-
-## TRAPS
-- <only what would cost the next session real time>
+## OPEN ITEMS, deltas against <previous handoff>
+- CLOSED SINCE: <item>, <file that proves it>
+- NEW SINCE: <item>, next step: <step>
+- DROPPED: <item>, <why>
+- unchanged: <n> items, see <previous handoff>
 ```
