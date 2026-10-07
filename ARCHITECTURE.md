@@ -149,7 +149,9 @@ Titles everywhere follow a plain-language standard: one imperative line, everyda
 
 ## 7. The email layer
 
-Added in October 2026. The aim: work email becomes part of each project's memory without the owner living in the inbox, and the question "did they reply?" is answered from evidence, never from a handoff's memory.
+Added in October 2026, and the piece that made the rest complete. Until then every layer above was fed only by what happened inside work sessions, and half of what happens in a small business happens by email: a supplier revises a quote, a client agrees to a date, the accountant answers a tax question, the bank blocks an account, the owner commits to something in a reply. None of it reached the memory unless the owner repeated it in a session, which he rarely did because it felt obvious. Sessions planned around a quote superseded by email three days earlier and asked the owner to chase replies already in his inbox.
+
+The aim, then: work email becomes part of each project's memory, filed next to the documents it concerns and linked to the same decisions and open items, without the owner living in the inbox; and the question "did they reply?" is answered from evidence, never from a handoff's recollection. A session that opens on a topic now sees the last handoff and the mail that arrived since, side by side.
 
 ### 7.1 Shape
 
