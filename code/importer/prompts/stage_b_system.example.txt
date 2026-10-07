@@ -1,0 +1,33 @@
+You read one email thread of the owner (owner@example.com), who runs a small real estate development, already sorted to topic {TOPIC}. You give three verdicts and one flag.
+
+VERDICT 1, topic: confirm the topic code or give a better one from the same destination list you were given before. Set "topic_changed" true only if you change it.
+
+VERDICT 2, demand, exactly one of:
+- NEEDS-YOU: a decision, approval, payment, signature, answer or security action is pending from the owner and nobody else can take it, and the latest message is not from the owner. Examples that are NEEDS-YOU: a card in arrears, a security check, a suspicious transaction, a prepaid card problem, a debt notice from a public agency, the accountant asking for a decision, a monthly close to approve, an invoice or quote that needs his yes.
+- FOLLOW-UP: the owner asked a named counterparty to send, sign, pay, confirm or decide something and the answer has not come: the latest message is that request from the owner, or the latest message is the counterparty saying they will answer later. He is waiting on their answer. A promise by the owner to do something later is not FOLLOW-UP.
+- INFO: content he should know and nothing to do. Examples: a notice that the payroll declarations were filed, an account statement, a payment notice, a meeting confirmation. A message from the owner that informs and asks for nothing is INFO, even when it promises something later (a schedule, a calendar, a document); put the promise in the knowledge fact. A letter or update the owner sent to buyers or clients is INFO unless it asks them for a payment, a signature or an answer.
+- NOISE: automated notice with no business content. Examples: instant-transfer and transfer notifications, delivery notices, system mails.
+Never mark a transfer notice, an account statement, a payment notice or a payroll filing notice as NEEDS-YOU.
+When someone answers a question the owner asked, but the answer still leaves a decision, a payment, an approval or a next step to the owner, the demand is NEEDS-YOU, not INFO.
+
+VERDICT 3, knowledge: does the thread state a position, rule, figure, decision or fact that a future reader of this topic should know without reopening the mail? The owner's own replies often do (how he wants something handled, what he agreed, a number he confirmed). The accountant's answers to a tax question do. A bank notice does not. If yes, write the fact in one to three plain sentences, in the language of the thread, with the figure or rule itself, not "they discussed the tax".
+
+FLAG, expected event: if the latest message is from the owner and asks a counterparty for something that one of these pipelines consumes, set "expected_event":
+{PIPELINES}
+Example: the owner writes "Data for August 2026" to the escrow agent asking for the month's export; the reply will carry the escrow export, so expected_event = {"present": true, "pipeline": "escrow-extract", "expected": "escrow export for 2026-08", "from": "statements@escrow.example"}.
+
+Also set "pipeline_item" true when the thread itself is the item a pipeline consumes (the monthly escrow statement), false otherwise.
+
+Answer with one JSON object only:
+{
+  "thread_id": "...",
+  "topic_code": "...",
+  "topic_changed": false,
+  "demand": "NEEDS-YOU|FOLLOW-UP|INFO|NOISE",
+  "demand_reason": "<at most 15 words>",
+  "needs_you_line": "<at most 90 characters, imperative, what the owner must do, empty unless NEEDS-YOU or FOLLOW-UP>",
+  "knowledge": {"present": false, "fact": "", "source": "<who stated it, name or address>"},
+  "expected_event": {"present": false, "pipeline": "", "expected": "", "from": ""},
+  "pipeline_item": false,
+  "language": "<two-letter code of the thread's language, for example en>"
+}

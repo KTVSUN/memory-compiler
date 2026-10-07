@@ -37,9 +37,10 @@ A conversation with an AI assistant is a good place to work and a bad place to s
 
 - **[`ARCHITECTURE.md`](ARCHITECTURE.md)**: the full description. Layers, the library and filing rules, the session bookends, the task layer, the email layer, the unattended jobs, the repository and reinstall, and what we abandoned since the first version and why.
 - **[`templates/`](templates/)**: the handoff template (8 KB cap, supersedes diff), the decision log header, the project log format, the needs-you list format.
+- **[`code/`](code/)**: the scripts themselves, as they run, with everything about the owner taken out: the email importer with an example config, an example topic matrix and example prompts, and four scripts with no model call (the mail-state reader, the daily record, the run checker, the topic menu). Each has a README saying what it reads and writes.
 - **[`legacy/`](legacy/)**: the first version of this repository (August 2026): a close-time validator script, `memory_check.py`, with its templates and a worked example. It still works on its own. We stopped using it; `ARCHITECTURE.md` section 10 says why.
 
-No business data, no personal data, no live code with credentials. Scripts named here (the importer, the daily record, the mail-state reader) are described, not shipped, in this version.
+No business data, no personal data, no credentials. The code in [`code/`](code/) is a copy made by a script from the live files: addresses, Gmail label names, project codes, folder paths, the two prompts and every name are replaced by invented examples, and a second script searches every file for them, and for anything shaped like an email address, a Windows path, a host name or an API key, before each push. The publish step refuses to push when that search finds something. The installer, the task board and the skills are described in `ARCHITECTURE.md`, not shipped.
 
 ## Status and license
 

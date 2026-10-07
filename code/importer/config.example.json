@@ -1,0 +1,36 @@
+{
+  "importer_pc": "",
+  "mailbox": "owner@example.com",
+  "aliases": [
+    "tax@example.com"
+  ],
+  "gmail_query_exclusions": "-category:promotions -category:social -in:spam -in:trash -in:drafts -label:newsletters -label:bank-alerts",
+  "start_date": "2026-01-01",
+  "overlap_hours": 48,
+  "secrets_dir": "C:\\MemoryDemo\\local\\EmailMemory",
+  "program_dir": "C:\\MemoryDemo\\Projects\\Tools\\Email memory\\Output\\importer",
+  "needs_you_path": "C:\\MemoryDemo\\Projects\\Tools\\Email memory\\Output\\NEEDS_YOU.md",
+  "status_path": "C:\\MemoryDemo\\Projects\\Tools\\Email memory\\Output\\NEEDS_YOU_status.csv",
+  "anthropic_model": "claude-opus-5-5",
+  "stage_a_batch_size": 25,
+  "stage_a_snippet_chars": 1000,
+  "stage_b_body_chars_per_message": 6000,
+  "stage_b_attachment_chars_each": 6000,
+  "stage_b_total_chars": 30000,
+  "attachment_max_mb": 20,
+  "zip_depth": 1,
+  "stale_days": 14,
+  "log_md_quiet_minutes": 5,
+  "gmail_label_enabled": true,
+  "gmail_label_name": "__Needs you",
+  "pipelines": {
+    "escrow-extract": "the monthly escrow statement or data export sent by the escrow agent"
+  },
+  "conditional_pipelines": [
+    "escrow-extract"
+  ],
+  "project_logs": {
+    "DEV": "C:\\MemoryDemo\\Library\\Development\\LOG.md"
+  },
+  "project_log_titles": {}
+}

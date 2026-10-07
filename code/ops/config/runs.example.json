@@ -1,0 +1,38 @@
+{
+  "version": 1,
+  "runs": [
+    {"id": "board-morning", "label": "Morning board", "needs_machine": true,
+     "cadence": {"kind": "daily", "days": [0,1,2,3,4,5,6], "time": "07:00"}, "settle_min": 60,
+     "probe": {"type": "jsonlines", "path": "{local_data}\\Board\\logs\\board_morning.log",
+               "key": "morning", "date_field": "time", "ok_field": "status", "ok_value": "OK"}},
+
+    {"id": "daily-record", "label": "Daily record", "needs_machine": true,
+     "cadence": {"kind": "daily", "days": [0,1,2,3,4,5,6], "time": "07:05"}, "settle_min": 60,
+     "probe": {"type": "md_section", "path": "{projects}\\Tools\\Workboard\\Daily record\\DAILY-{prev:%Y%m}.md",
+               "heading": "## {prev:%Y-%m-%d}"},
+     "fail_probe": {"type": "jsonlines", "path": "{local_data}\\Board\\logs\\daily_record.log",
+               "key": "daily_record", "date_field": "written_at", "ok_field": "status", "ok_value": "OK"}},
+
+    {"id": "runner-1", "label": "Evening runner (manifest, purge, backup)", "needs_machine": true,
+     "cadence": {"kind": "daily", "days": [0,1,2,3,4,5,6], "time": "18:00"}, "settle_min": 60,
+     "probe": {"type": "jsonlines_steps", "path": "{local_data}\\Board\\logs\\runner1.log",
+               "steps": ["manifest_regen", "quarantine_purge", "register_backup"],
+               "date_field": "started_at", "ok_field": "status", "ok_value": "success"}},
+
+    {"id": "intake-sweep", "label": "Intake sweep", "needs_machine": true,
+     "cadence": {"kind": "daily", "days": [0,1,2,3,4], "time": "19:00"}, "settle_min": 60,
+     "probe": {"type": "json_key", "path": "{local_data}\\Board\\Register\\run_status.json",
+               "key": "", "match_field": "step", "match_value": "intake-sweep",
+               "date_field": "time", "ok_field": "status", "ok_value": "OK"}},
+
+    {"id": "weekly-report", "label": "Weekly report draft", "needs_machine": false,
+     "cadence": {"kind": "weekly", "weekday": 4, "time": "17:00"}, "settle_min": 120,
+     "probe": {"type": "files", "paths": [
+        "{library}\\Reporting\\Output\\{slot:%Y%m%d}\\md\\DRAFT - Weekly update - {slot:%Y%m%d}.md"],
+        "min_bytes": 1000}},
+
+    {"id": "monthly-tax-sweep", "label": "Monthly tax sweep", "needs_machine": true,
+     "cadence": {"kind": "monthly", "day": 3, "time": "08:00"}, "settle_min": 180,
+     "probe": {"type": "stamp", "window_days": 2}}
+  ]
+}
